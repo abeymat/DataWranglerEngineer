@@ -2,6 +2,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from app.salesforce.models import SalesforceLoadPlan
+
 
 class ValidationFinding(BaseModel):
     rule_id: str
@@ -29,6 +31,7 @@ class WorkflowExecuteResponse(BaseModel):
     output_columns: list[str]
     metrics: ExecutionMetrics
     validation_findings: list[ValidationFinding]
+    salesforce_load_plan: SalesforceLoadPlan
     warnings: list[str] = Field(default_factory=list)
     preview_rows: list[dict[str, Any]]
     duration_ms: int

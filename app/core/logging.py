@@ -7,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-logger = logging.getLogger("data_wrangler")
+logger = logging.getLogger("salesforce_etl")
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s correlation_id=%(correlation_id)s %(message)s",

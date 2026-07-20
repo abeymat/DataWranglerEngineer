@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_env: str = "development"
-    app_name: str = "Data Wrangler Engineer"
+    app_name: str = "Salesforce ETL Engineer"
     app_version: str = "0.1.0"
     cors_origins_raw: str = Field(
         default="http://localhost:8000,http://127.0.0.1:8000",
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 5 * 1024 * 1024
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
-    workflow_db_path: str = "data_wrangler.db"
+    workflow_db_path: str = "salesforce_etl_workflows.db"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", populate_by_name=True)
 

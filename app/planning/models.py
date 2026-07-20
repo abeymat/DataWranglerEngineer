@@ -3,6 +3,7 @@ from enum import StrEnum
 from pydantic import BaseModel, Field
 
 from app.ingestion.models import DatasetProfile
+from app.salesforce.models import SalesforceLoadTarget
 
 
 class TransformationAction(StrEnum):
@@ -36,6 +37,8 @@ class WorkflowSpec(BaseModel):
     workflow_name: str
     business_objective: str
     input_dataset: str
+    extract_source: str = "csv_upload"
+    load_target: SalesforceLoadTarget = Field(default_factory=SalesforceLoadTarget)
     required_columns: list[str]
     transformation_steps: list[TransformationStep]
     grouping_keys: list[str] = Field(default_factory=list)

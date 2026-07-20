@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.datasets import router as datasets_router
 from app.api.lookups import router as lookups_router
+from app.api.salesforce import router as salesforce_router
 from app.api.workflows import router as workflows_router
 from app.core.errors import register_exception_handlers
 from app.core.logging import CorrelationIdMiddleware
@@ -34,6 +35,7 @@ def create_app() -> FastAPI:
     app.mount("/samples", StaticFiles(directory=samples_dir), name="samples")
     app.include_router(datasets_router, prefix="/api/v1")
     app.include_router(lookups_router, prefix="/api/v1")
+    app.include_router(salesforce_router, prefix="/api/v1")
     app.include_router(workflows_router, prefix="/api/v1")
 
     @app.get("/", include_in_schema=False)

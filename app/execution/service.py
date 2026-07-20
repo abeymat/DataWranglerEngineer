@@ -13,6 +13,7 @@ from app.execution.transformations import execute_operation_graph
 from app.execution.validator import validate_execution
 from app.ingestion.csv_loader import load_csv_upload
 from app.operations.models import OperationGraph
+from app.salesforce.load_contract import build_salesforce_load_plan
 
 EXECUTION_TIMEOUT_SECONDS = 10
 PREVIEW_LIMIT = 25
@@ -49,6 +50,7 @@ async def execute_workflow_upload(
         output_columns=result.output_df.columns,
         metrics=result.metrics,
         validation_findings=findings,
+        salesforce_load_plan=build_salesforce_load_plan(result.output_df.columns),
         warnings=warnings,
         preview_rows=result.output_df.head(PREVIEW_LIMIT).to_dicts(),
         duration_ms=duration_ms,

@@ -1,73 +1,80 @@
 # Implementation Plan
 
-## Phase 1: Audit And Product Specification
+## Phase 1: Salesforce ETL Pivot
 
-- Create repository-level audit, product spec, architecture, implementation plan, and `AGENTS.md`.
-- Record existing test/lint status and security risks.
+- Rename the product surface to Salesforce ETL Engineer.
+- Add explicit extract source and Salesforce load target metadata to workflow planning.
+- Add a Salesforce load contract that validates required output columns and maps source columns to Salesforce fields.
+- Update docs, tests, and UI copy to reflect ETL rather than generic data wrangling.
 
-## Phase 2: Architecture And Security Foundation
+## Phase 2: Extract Foundation
 
-- Scaffold Python package structure, settings, error envelopes, logging, and health endpoints.
-- Add `.env.example`, README baseline, Docker skeleton, and test tooling.
+- Keep CSV as the first extraction source.
+- Preserve file type, size, delimiter, encoding, malformed row, null, duplicate, identifier, and type profiling.
+- Add extension interfaces for Excel, JSON, SOQL query results, and API payloads.
 
-## Phase 3: Dataset Profiling
+## Phase 3: Transform Foundation
 
-- Implement CSV validation, delimiter detection, encoding handling, Polars loading, schema profiling, and sample datasets.
-- Add unit tests.
+- Continue using typed `WorkflowSpec` and approved operation graphs.
+- Keep Polars as the only transformation engine.
+- Expand the operation catalog for common Salesforce ETL tasks: picklists, external IDs, owner assignment, reference lookups, date/time normalization, and multi-object splits.
 
-## Phase 4: Structured Workflow Planning
+## Phase 4: Load Foundation
 
-- Define Pydantic workflow spec and deterministic demo planner.
-- Add OpenAI Responses API adapter with mocked tests.
+- Keep Salesforce-ready CSV as the current load output.
+- Add object-specific load contracts for `Account`, `Contact`, `Lead`, and custom objects.
+- Add configurable field mapping profiles.
+- Add downloadable CSV export and load manifest.
+- Defer direct Salesforce writes until security and approval controls are implemented.
 
-## Phase 5: Safe Transformation Generation
+## Phase 5: Controlled Execution And Validation
 
-- Implement approved operation graph and Polars renderer.
-- Add allowlist tests and generated-code readability checks.
+- Keep execution outside the main API process.
+- Add richer validation rules for Salesforce required fields, external IDs, duplicate keys, picklist values, phone/email formats, and referential lookups.
+- Preserve reconciliation metrics and before/after previews.
 
-## Phase 6: Controlled Execution And Validation
-
-- Execute operation graph in a worker process with timeout and temp cleanup.
-- Add validation rules, reconciliation metrics, and API integration tests.
-
-## Phase 7: Repair Loop
+## Phase 6: Repair Loop
 
 - Add bounded repair attempts, failure classification, sanitized reports, and deterministic demo repair path.
+- Never allow uncontrolled autonomous retries.
 
-## Phase 8: Workflow Persistence
+## Phase 7: Workflow Persistence
 
 - Add SQLite repository and workflow history model.
-- Persist workflows without source data.
+- Persist ETL definitions, versions, load targets, field mappings, validation rules, and execution summaries.
+- Do not persist source datasets by default.
 
-## Phase 9: Salesforce And Standalone UI Integration
+## Phase 8: Salesforce UI And Integration
 
-- Build standalone demo UI.
-- Improve Salesforce DTOs, Apex callout contract, mocks, tests, loading, errors, and setup docs.
+- Keep the standalone browser workbench as the primary demo surface.
+- Add Apex/LWC DTOs only after the backend contract stabilizes.
+- Use Named Credentials or protected metadata for backend endpoint and authentication.
+- Include mocks and tests for any Salesforce metadata added.
 
-## Phase 10: UX Refinement
+## Phase 9: UX Refinement
 
-- Polish layout, accessibility, responsive behavior, data previews, timeline, validation, and export flow.
+- Polish the ETL timeline, source profile, transform plan, operation graph, validation findings, load plan, and output preview.
+- Add clear empty, loading, success, warning, and failure states.
+- Keep the UI restrained and enterprise-focused.
 
-## Phase 11: Full Testing And Security Review
+## Phase 10: Full Testing And Security Review
 
-- Expand tests, run lint/type checks, review logs and secrets, verify failure paths.
+- Expand tests for schema profiling, operation graphs, load contracts, output validation, error sanitization, repair limits, and API integration.
+- Run pytest, ruff, mypy, and a secrets review before completing each major phase.
 
-## Phase 12: Deployment And Reproducibility
+## Phase 11: Deployment And Reproducibility
 
-- Finalize Dockerfile, lock files, setup commands, production start, and troubleshooting.
+- Finalize README, `.env.example`, Dockerfile, setup commands, test commands, production start command, and troubleshooting.
+- Keep the backend runnable locally without Salesforce access.
 
-## Phase 13: Submission Materials
+## Phase 12: Submission Materials
 
-- Create Devpost draft, demo script, shot list, technical summary, judging map, limitations, architecture diagram, and Codex build log.
+- Update Build Week submission materials around Salesforce ETL: problem, architecture, Codex contribution, safety design, demo script, known limitations, and roadmap.
 
-## Phase 14: Demo Rehearsal And Release Audit
+## Current Implementation Slice
 
-- Run end-to-end happy path, repair path, save/rerun/export flow, and final release checklist.
-
-## First Implementation Slice
-
-1. Scaffold backend package and tests.
-2. Implement settings, logging, error envelopes, health/readiness.
-3. Implement CSV profiler and sample datasets.
-4. Add deterministic workflow spec for the primary demo.
-5. Add tests that do not require OpenAI credentials.
+1. Product renamed to Salesforce ETL Engineer.
+2. Workflow plan includes extract source and Salesforce load target.
+3. Execution response includes Salesforce load readiness and field mappings.
+4. UI presents an ETL timeline and Salesforce load prep panel.
+5. Tests cover load contract, workflow planning, execution response, and UI copy.

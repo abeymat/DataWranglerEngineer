@@ -1,60 +1,58 @@
 # Product Spec
 
-# Data Wrangler Engineer
+# Salesforce ETL Engineer
 
-Data Wrangler Engineer converts plain-English business data requirements into safe, tested, explainable, reusable Polars transformation workflows.
+Salesforce ETL Engineer is an AI-assisted ETL workbench for preparing trustworthy Salesforce loads from business-owned datasets. It extracts and profiles source data, converts a plain-English Salesforce outcome into a typed transformation plan, executes an approved Polars operation graph, validates the result, and produces a Salesforce-ready load package.
+
+The current implementation supports CSV extraction and Salesforce-ready CSV load preparation. Direct writes to Salesforce are intentionally deferred until OAuth, Named Credential, Bulk API behavior, retry policy, and operator approvals are implemented and tested.
 
 ## Primary Demo Request
 
-Create one row per customer. Combine all unique addresses into a readable address list, normalize U.S. phone numbers, calculate total purchases, retain the most recent transaction date, remove duplicates, flag records with missing customer IDs, and prepare the output for Salesforce import.
+Create one row per customer. Combine all unique addresses into a readable address list, normalize U.S. phone numbers, calculate total purchases, retain the most recent transaction date, remove duplicates, flag records with missing customer IDs, and prepare the output for Salesforce Account upsert.
 
-## Core User Flow
+## Core ETL User Flow
 
-1. Upload a CSV dataset.
-2. Receive a schema and quality profile.
-3. Enter a natural-language business request.
-4. Review a typed transformation plan.
-5. Generate a constrained Polars workflow.
-6. Execute the workflow in a controlled worker.
-7. Run validation checks and show a test report.
-8. Show a bounded repair attempt when a deterministic demo schema issue occurs.
-9. Preview before-and-after data.
-10. Save and rerun the workflow.
-11. Export Salesforce-ready CSV output.
+1. Extract a CSV source dataset.
+2. Receive schema, type, duplicate, null, malformed value, and identifier profiling.
+3. Enter a natural-language Salesforce load objective.
+4. Review a typed ETL plan with extract source, transform steps, validation rules, and Salesforce load target.
+5. Generate an approved Polars operation graph and readable Polars code artifact.
+6. Execute the transform in a controlled worker process.
+7. Run validation and reconciliation checks.
+8. Preview before-and-after data.
+9. Review the Salesforce load plan, field mappings, required columns, and readiness status.
+10. Export or hand off the Salesforce-ready CSV load package.
+11. Save and rerun the workflow when persistence is enabled.
 
 ## Build Week Features
 
-- CSV ingestion with file type, size, delimiter, encoding, null, duplicate, malformed-value, identifier, and type profiling.
-- VLOOKUP-style two-CSV lookup preview using safe Polars left joins.
-- Standalone browser workbench for CSV upload, profiling, planning, generation, and lookup preview.
-- Controlled workflow execution with transformed preview, reconciliation metrics, and validation findings.
-- Pydantic workflow specification model.
-- Operation graph that translates to Polars code.
-- AST allowlist only as a secondary guard for generated code display or constrained snippets.
-- Worker-process execution with timeout, sanitized errors, temporary directories, and cleanup.
-- Validation suite for output columns, identifiers, row counts, totals, duplicates, date handling, and source immutability.
-- Bounded repair loop with attempt history.
-- SQLite workflow persistence for standalone demo.
+- CSV extraction with file type, size, delimiter, encoding, null, duplicate, malformed-value, identifier, and type profiling.
+- VLOOKUP-style two-CSV lookup preview for enriching load sources before transformation.
+- Standalone browser ETL workbench for upload, profiling, planning, generation, execution, validation, and load preparation.
+- Pydantic `WorkflowSpec` with extract source and Salesforce load target metadata.
+- Approved operation graph that translates to Polars code instead of executing arbitrary generated Python.
+- Worker-process execution with timeout, sanitized errors, and no default source-data persistence.
+- Validation suite for output columns, identifiers, row counts, totals, duplicates, date handling, and Salesforce load readiness.
+- Salesforce load contract for Account upsert CSVs, including source-to-target field mappings and missing-column reporting.
 - FastAPI v1 endpoints with typed request/response models and consistent error envelopes.
-- Standalone enterprise-style web demo.
-- Salesforce integration contract and retained Apex/LWC path.
-- Build Week submission package and transparent Codex build log.
+- Health and readiness endpoints for local and container deployments.
 
 ## Deferred Features
 
-- Native Excel, JSON, API-response, and SOQL-result ingestion beyond extension-ready interfaces.
-- Strong OS sandbox guarantees beyond documented worker isolation unless Docker worker is completed and verified.
-- Multi-user production authentication.
+- Direct Salesforce writes through Bulk API, Composite API, or Apex callouts.
+- Native Excel, JSON, API-response, and SOQL-result extraction beyond extension-ready boundaries.
+- Strong OS sandbox guarantees beyond documented worker isolation unless a Docker worker is completed and verified.
+- Multi-user production authentication and role-based approval workflows.
 - Full Salesforce managed package hardening.
 - Large-file distributed execution.
 - Automatic arbitrary workflow synthesis outside the approved operation set.
-- Real customer-data classification beyond simple redaction heuristics.
+- Real customer-data classification beyond simple profiling and redaction heuristics.
 
 ## Success Criteria
 
-- Main demo runs locally without a real OpenAI key by default.
-- Real OpenAI integration is available behind configuration.
+- Main ETL demo runs locally without a real OpenAI key by default.
+- Salesforce load prep is explicit, validated, and not confused with direct org writes.
 - Tests, linting, and type checks pass or documented exceptions are explicit.
-- No committed secrets.
-- Generated transformations are validated before presentation as successful.
-- Failure and repair are deterministic for video recording.
+- No committed secrets or real customer data.
+- Uploaded source data is not persisted unexpectedly.
+- Generated transformations are validated before being presented as successful.

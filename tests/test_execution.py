@@ -58,5 +58,7 @@ def test_execute_endpoint_returns_preview_and_validation() -> None:
     assert body["execution_status"] == "passed"
     assert body["metrics"]["input_row_count"] == 8
     assert body["metrics"]["output_row_count"] == 5
+    assert body["salesforce_load_plan"]["ready_for_load"] is True
+    assert body["salesforce_load_plan"]["target"]["object_api_name"] == "Account"
     assert len(body["preview_rows"]) == 5
     assert any(finding["rule_id"] == "exec_val_004" for finding in body["validation_findings"])

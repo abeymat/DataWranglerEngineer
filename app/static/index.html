@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Data Wrangler Engineer</title>
+    <title>Salesforce ETL Engineer</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">Build Week Workbench</p>
-        <h1>Data Wrangler Engineer</h1>
+        <p class="eyebrow">Extract Transform Load</p>
+        <h1>Salesforce ETL Engineer</h1>
       </div>
       <nav class="header-actions" aria-label="Primary">
         <a href="/docs" class="ghost-link">API Docs</a>
@@ -22,8 +22,8 @@
       <section class="panel dataset-panel" aria-labelledby="dataset-title">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Dataset</p>
-            <h2 id="dataset-title">Profile CSV</h2>
+            <p class="eyebrow">Extract</p>
+            <h2 id="dataset-title">Profile Source CSV</h2>
           </div>
           <button id="load-demo" class="secondary-button" type="button">Load Sample</button>
         </div>
@@ -33,7 +33,7 @@
           <span id="dataset-file-label">Choose primary CSV</span>
         </label>
 
-        <button id="profile-button" class="primary-button" type="button">Profile Dataset</button>
+        <button id="profile-button" class="primary-button" type="button">Extract Profile</button>
 
         <div class="metric-grid" aria-label="Dataset metrics">
           <div>
@@ -58,8 +58,8 @@
       <section class="panel request-panel" aria-labelledby="request-title">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Instruction</p>
-            <h2 id="request-title">Ask In Plain English</h2>
+            <p class="eyebrow">Transform</p>
+            <h2 id="request-title">Describe The Salesforce Outcome</h2>
           </div>
           <button id="demo-instruction" class="secondary-button" type="button">Demo Request</button>
         </div>
@@ -67,24 +67,24 @@
         <textarea id="instruction" rows="9"></textarea>
 
         <div class="button-row">
-          <button id="plan-button" class="primary-button" type="button">Create Plan</button>
-          <button id="generate-button" class="secondary-button" type="button">Generate Workflow</button>
-          <button id="execute-button" class="secondary-button" type="button">Execute</button>
+          <button id="plan-button" class="primary-button" type="button">Plan Transform</button>
+          <button id="generate-button" class="secondary-button" type="button">Generate Transform</button>
+          <button id="execute-button" class="secondary-button" type="button">Run ETL</button>
         </div>
       </section>
 
       <section class="panel status-panel" aria-labelledby="status-title">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Run State</p>
-            <h2 id="status-title">Workflow Timeline</h2>
+            <p class="eyebrow">Pipeline</p>
+            <h2 id="status-title">ETL Timeline</h2>
           </div>
         </div>
         <ol id="timeline" class="timeline">
-          <li data-step="profile">Dataset profile waiting</li>
-          <li data-step="plan">Transformation plan waiting</li>
-          <li data-step="generate">Polars workflow waiting</li>
-          <li data-step="execute">Execution layer next</li>
+          <li data-step="profile">Extract profile waiting</li>
+          <li data-step="plan">Transform plan waiting</li>
+          <li data-step="generate">Polars transform waiting</li>
+          <li data-step="execute">Load preparation waiting</li>
         </ol>
       </section>
 
@@ -94,7 +94,7 @@
           <button class="tab-button" data-tab="plan" type="button">Plan</button>
           <button class="tab-button" data-tab="graph" type="button">Graph</button>
           <button class="tab-button" data-tab="code" type="button">Polars</button>
-          <button class="tab-button" data-tab="output" type="button">Output</button>
+          <button class="tab-button" data-tab="output" type="button">Load Prep</button>
           <button class="tab-button" data-tab="lookup" type="button">Lookup</button>
         </div>
 
@@ -109,10 +109,10 @@
 
         <section id="tab-plan" class="tab-panel">
           <div class="section-heading">
-            <h2>Structured Plan</h2>
+            <h2>Structured ETL Plan</h2>
             <span id="plan-summary" class="subtle">No plan created</span>
           </div>
-          <div id="plan-output" class="detail-grid empty-state">Waiting for a workflow plan.</div>
+          <div id="plan-output" class="detail-grid empty-state">Waiting for an ETL plan.</div>
         </section>
 
         <section id="tab-graph" class="tab-panel">
@@ -128,12 +128,12 @@
             <h2>Generated Polars</h2>
             <span class="subtle">Approved operation renderer</span>
           </div>
-          <pre id="code-output" class="code-block">Waiting for generated workflow.</pre>
+          <pre id="code-output" class="code-block">Waiting for generated transform.</pre>
         </section>
 
         <section id="tab-output" class="tab-panel">
           <div class="section-heading">
-            <h2>Execution Output</h2>
+            <h2>Salesforce Load Prep</h2>
             <span id="execution-summary" class="subtle">No execution yet</span>
           </div>
           <div class="metric-grid output-metrics">
@@ -154,8 +154,11 @@
               <strong id="exec-total">-</strong>
             </div>
           </div>
+          <div id="salesforce-load-plan" class="detail-grid empty-state">
+            Waiting for Salesforce load plan.
+          </div>
           <div id="validation-findings" class="finding-list"></div>
-          <div id="execution-table" class="table-wrap empty-state">Waiting for workflow execution.</div>
+          <div id="execution-table" class="table-wrap empty-state">Waiting for ETL execution.</div>
         </section>
 
         <section id="tab-lookup" class="tab-panel">

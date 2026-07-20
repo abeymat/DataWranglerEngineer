@@ -29,7 +29,10 @@ def test_demo_planner_returns_structured_workflow_spec() -> None:
     )
 
     spec = response.spec
-    assert spec.workflow_name == "Customer Salesforce Import Wrangler"
+    assert spec.workflow_name == "Customer Account Salesforce ETL"
+    assert spec.extract_source == "csv_upload"
+    assert spec.load_target.system == "salesforce"
+    assert spec.load_target.object_api_name == "Account"
     assert spec.grouping_keys == ["customer_id", "customer_name"]
     assert "total_purchases" in spec.output_columns
     assert len(spec.transformation_steps) == 7
@@ -51,4 +54,5 @@ def test_plan_endpoint_accepts_profile_payload() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["success"] is True
+    assert body["spec"]["load_target"]["object_api_name"] == "Account"
     assert body["spec"]["output_columns"][0] == "customer_id"

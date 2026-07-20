@@ -9,9 +9,9 @@ def test_index_serves_workbench() -> None:
     response = client.get("/")
 
     assert response.status_code == 200
-    assert "Data Wrangler Engineer" in response.text
+    assert "Salesforce ETL Engineer" in response.text
     assert "/static/app.js" in response.text
-    assert "Execute" in response.text
+    assert "Run ETL" in response.text
 
 
 def test_static_assets_are_served() -> None:

@@ -121,7 +121,7 @@ async function profileDataset() {
   const body = await postForm("/api/v1/datasets/profile", formData);
   state.profile = body.profile;
   renderProfile(state.profile);
-  setStep("profile", "Dataset profiled", true);
+  setStep("profile", "Source extracted and profiled", true);
   activateTab("profile");
 }
 
@@ -143,7 +143,7 @@ async function createPlan() {
   });
   state.spec = body.spec;
   renderPlan(state.spec);
-  setStep("plan", "Plan created", true);
+  setStep("plan", "Transform plan created", true);
   activateTab("plan");
 }
 
@@ -157,7 +157,7 @@ async function generateWorkflow() {
   state.generated = body;
   renderGraph(body.operation_graph);
   $("code-output").textContent = body.polars_code;
-  setStep("generate", "Polars workflow generated", true);
+  setStep("generate", "Approved Polars transform generated", true);
   activateTab("graph");
 }
 
@@ -174,7 +174,13 @@ async function executeWorkflow() {
   const body = await postForm("/api/v1/workflows/execute", formData);
   state.execution = body;
   renderExecution(body);
-  setStep("execute", "Workflow executed and validated", body.execution_status === "passed");
+  setStep(
+    "execute",
+    body.salesforce_load_plan.ready_for_load
+      ? "Salesforce load package ready"
+      : "Salesforce load package needs review",
+    body.execution_status === "passed" && body.salesforce_load_plan.ready_for_load,
+  );
   activateTab("output");
 }
 
@@ -245,6 +251,11 @@ function renderPlan(spec) {
   $("plan-summary").textContent = `${spec.transformation_steps.length} steps`;
   $("plan-output").classList.remove("empty-state");
   $("plan-output").innerHTML = [
+    detailItem("Extract Source", spec.extract_source),
+    detailItem(
+      "Load Target",
+      `${spec.load_target.system} ${spec.load_target.object_api_name} ${spec.load_target.operation}`,
+    ),
     detailItem("Objective", spec.business_objective),
     chipItem("Required Columns", spec.required_columns),
     chipItem("Output Columns", spec.output_columns),
@@ -293,12 +304,30 @@ function renderExecution(body) {
   $("exec-output-count").textContent = body.metrics.output_row_count;
   $("exec-duplicates-count").textContent = body.metrics.duplicate_rows_removed;
   $("exec-total").textContent = `$${Number(body.metrics.output_purchase_total).toFixed(2)}`;
+  renderSalesforceLoadPlan(body.salesforce_load_plan);
   renderFindings("validation-findings", body.validation_findings);
   $("execution-table").classList.remove("empty-state");
   $("execution-table").innerHTML = tableHtml(
     body.output_columns,
     body.preview_rows.map((row) => body.output_columns.map((column) => row[column] ?? "")),
   );
+}
+
+function renderSalesforceLoadPlan(plan) {
+  const target = plan.target;
+  $("salesforce-load-plan").classList.remove("empty-state");
+  $("salesforce-load-plan").innerHTML = [
+    detailItem("Target", `${target.object_api_name} ${target.operation}`),
+    detailItem("External ID", target.external_id_field),
+    detailItem("Load Format", plan.output_format.toUpperCase()),
+    detailItem("Ready", plan.ready_for_load ? "Yes" : "Needs review"),
+    chipItem(
+      "Mappings",
+      plan.field_mappings.map((mapping) => `${mapping.source_column} -> ${mapping.target_field}`),
+    ),
+    chipItem("Missing Required Columns", plan.missing_output_columns),
+    chipItem("Load Notes", plan.notes),
+  ].join("");
 }
 
 function detailItem(title, value) {

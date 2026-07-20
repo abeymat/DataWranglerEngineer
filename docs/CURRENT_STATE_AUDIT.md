@@ -1,70 +1,84 @@
 # Current State Audit
 
-Reference project audited: `/Users/abeymathews/AntiGravityProjects/myDataAnalyticsVersion2`.
+## Scope
 
-No files were modified in the reference project. This repository is the Build Week workspace for the transformed implementation.
+This repository is the Build Week workspace for Salesforce ETL Engineer. The original reference project in `/Users/abeymathews/AntiGravityProjects/myDataAnalyticsVersion2` was not modified.
 
-## Repository Structure Observed
+## Current Product Shape
 
-- `app.py`: monolithic FastAPI backend with upload, analysis, Salesforce OAuth/import, generated code execution, cleanup, and utility logic.
-- `static/` and `templates/`: standalone web UI assets.
-- `salesforce-app/`: Salesforce DX project with LWC, Apex controller, custom objects, named credential metadata, tabs, pages, and tests.
-- `requirements.txt`, `runtime.txt`, `Procfile`, `.slugignore`: Python/Heroku deployment configuration.
-- `sample_sales_data.csv`, `xy.csv`, `updatecontact.csv`: sample/input data.
-- `test_*.py`: ad hoc Python tests and reproduction scripts.
-- `README.md`, `README_MANAGED_PACKAGE.md`, `MIGRATION_TO_OPENAI.md`, `PROGRESS.md`, logs, Apex scripts, and helper scripts.
-- `certs/`, `.env`, `.env.example`, logs, `uploads/`, and `results/`: local operational artifacts that need cleanup before public submission.
+The application is now positioned as a Salesforce-focused ETL tool:
 
-## Existing Reusable Components
+- Extract: CSV upload, validation, delimiter detection, encoding handling, Polars loading, and schema/quality profiling.
+- Transform: natural-language request to typed `WorkflowSpec`, approved operation graph generation, and Polars code rendering.
+- Load: Salesforce-ready CSV preparation with Account upsert field mappings and load-readiness checks.
 
-- FastAPI routing and multipart upload foundation.
-- Polars dependency and several Polars-oriented helpers, including CSV export handling for nested data.
-- Initial AST allowlist concept for generated code.
-- Session cleanup and startup/shutdown data wipe hooks.
-- Salesforce Lightning Web Component with CSV upload, SOQL import, workflow save/run UI concepts, result preview, and loading states.
-- Apex callout controller, Named Credential metadata, custom workflow objects, and Apex test class.
-- Heroku deployment shape via `Procfile` and runtime files.
-- Error-message mapping utility that can be evolved into structured error sanitization.
+The current load stage does not write directly to Salesforce. It prepares and validates the package that an operator or future connector can load.
 
-## Critical Problems And Risks
+## Repository Structure
 
-- Generated Python is executed with `exec` in the API process. The AST check is helpful but incomplete and does not provide OS-level isolation.
-- Documentation claims Pandas/GPT-4 behavior while code has moved toward Polars and multiple AI providers.
-- `.env.example` contains Salesforce-looking credentials and tokens. This must be replaced with placeholders before submission.
-- Apex contains a hard-coded service token.
-- CORS allows all origins.
-- Logs appear to contain operational data and generated code. Logging policy must prevent secrets and full datasets.
-- The backend is monolithic and mixes auth, Salesforce integration, profiling, generation, execution, and UI concerns.
-- Uploaded data and result files are stored on disk by default in `uploads/` and `results/`.
-- Tests are present but not organized as a dependable suite. `pytest` is not installed in the current workspace, so tests could not be run yet.
-- OpenAI usage appears to rely on older chat-completions patterns in documentation and should be updated to current Responses API patterns after confirming SDK behavior.
-- Salesforce UI is functional-looking but too broad for the Build Week demo path and includes duplicated state declarations.
+- `app/main.py`: FastAPI app factory, health/readiness routes, static UI, samples, and API routers.
+- `app/api/`: dataset, lookup, workflow, and Salesforce load-plan endpoints.
+- `app/ingestion/`: CSV loading and profiling.
+- `app/planning/`: ETL planning models and deterministic demo planner.
+- `app/operations/`: approved operation graph models, generator, and Polars renderer.
+- `app/execution/`: worker-process execution, result models, transformation logic, and validation.
+- `app/salesforce/`: Salesforce load target, field mapping, and readiness contract.
+- `app/static/`: standalone browser ETL workbench.
+- `samples/`: synthetic demo CSVs.
+- `tests/`: pytest suite.
+- `docs/`: audit, product, architecture, implementation, and Salesforce contract documentation.
 
-## Current Run Commands
+## Reusable Components Preserved
 
-- Backend documented command: `python app.py` or `uvicorn app:app --reload`.
-- Salesforce commands are driven from `salesforce-app/package.json`: `npm run lint`, `npm run test:unit`, `npm run prettier:verify`.
-- Existing Python tests attempted with `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/abeymathews/AntiGravityProjects/myDataAnalyticsVersion2 pytest -q -p no:cacheprovider /Users/abeymathews/AntiGravityProjects/myDataAnalyticsVersion2`.
-- Result: failed before collection because `pytest` is not installed in the current environment.
+- FastAPI app structure and typed routers.
+- Polars-based CSV profiling and transformation path.
+- Deterministic customer-to-Salesforce demo scenario.
+- VLOOKUP-style two-CSV lookup preview.
+- Controlled process-based execution layer.
+- Validation findings and reconciliation metrics.
+- Synthetic sample datasets.
+- Standalone UI served by the backend.
 
-## Preserve
+## Current Known Gaps
 
-- Salesforce project structure and integration contract ideas.
-- FastAPI as backend framework.
-- Polars as the transformation engine.
-- CSV upload and result download flow.
-- Existing workflow persistence concept in Salesforce custom objects, while adding local SQLite for standalone demo.
-- Startup/shutdown cleanup intent.
+- Direct Salesforce writes are not implemented and should not be implied.
+- Workflow persistence is documented but not yet implemented.
+- Repair loop is planned but not yet implemented in the main path.
+- OpenAI Responses API integration is planned but currently represented by deterministic local planning/generation.
+- Execution worker is not a hardened operating-system sandbox.
+- CSV export/download button is still needed for a complete load handoff.
+- Salesforce Apex/LWC metadata for this revised ETL contract is not yet implemented in this workspace.
 
-## Replace Or Refactor
+## Security And Reliability Findings
 
-- In-process `exec` execution path.
-- Free-form generated Pandas or broad Python code generation.
-- Hard-coded credentials and service tokens.
-- Global CORS and unauthenticated production APIs.
-- Monolithic backend structure.
-- Unversioned prompts and undocumented model configuration.
+- Uploaded source data is processed for requests and is not persisted by default.
+- The application executes an approved operation graph, not arbitrary model-generated Python.
+- Errors are sanitized before returning from worker execution.
+- No credentials or Salesforce org identifiers are required for the current local demo.
+- `.env.example` uses placeholders and should remain secret-free.
+- Direct Salesforce mutation requires a separate security design with Named Credentials, OAuth, approvals, retry policy, audit logging, and tests.
+
+## How The Application Currently Runs
+
+Local setup:
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+Open the UI at `http://127.0.0.1:8000/` and the API docs at `http://127.0.0.1:8000/docs`.
+
+Checks:
+
+```bash
+pytest
+ruff check .
+mypy app tests
+```
 
 ## Audit Conclusion
 
-The existing project is a strong prototype with valuable Salesforce integration and a working FastAPI/UI base. For Build Week, it should be reshaped into a safer, explainable data-engineering workflow system: typed planning first, constrained Polars operation generation, isolated execution, validation, bounded repair, workflow persistence, and a polished deterministic demo.
+The project has a solid FastAPI/Polars foundation and a reliable local demo path. The Salesforce ETL pivot should continue incrementally: first strengthen load-package export and object-specific contracts, then add persistence, repair, and finally direct Salesforce integration only after safety and approval controls exist.

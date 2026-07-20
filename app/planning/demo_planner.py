@@ -42,9 +42,10 @@ def plan_workflow(request: WorkflowPlanRequest) -> WorkflowPlanResponse:
         )
 
     spec = WorkflowSpec(
-        workflow_name="Customer Salesforce Import Wrangler",
+        workflow_name="Customer Account Salesforce ETL",
         business_objective=request.instruction,
         input_dataset=profile.filename,
+        extract_source="csv_upload",
         required_columns=DEMO_REQUIRED_COLUMNS,
         transformation_steps=_demo_steps(),
         grouping_keys=["customer_id", "customer_name"],
