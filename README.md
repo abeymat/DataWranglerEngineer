@@ -52,6 +52,8 @@ mypy app tests
 
 Copy `.env.example` to `.env` for local overrides. Do not commit real Salesforce credentials, API keys, tokens, org IDs, or customer data.
 
+The default OpenAI model configuration is `gpt-5.6-sol`. Your OpenAI API organization must have GPT-5.6 access enabled before any future OpenAI-backed planning or generation path can use it successfully.
+
 ## Current Limitations
 
 - CSV is the only implemented extractor.

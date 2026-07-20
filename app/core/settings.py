@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     )
     max_upload_bytes: int = 5 * 1024 * 1024
     openai_api_key: str | None = None
-    openai_model: str = "gpt-4.1-mini"
+    openai_model: str = "gpt-5.6-sol"
     workflow_db_path: str = "salesforce_etl_workflows.db"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", populate_by_name=True)
