@@ -248,13 +248,18 @@ function renderProfile(profile) {
 }
 
 function renderPlan(spec) {
+  const loadTarget = spec.load_target ?? {
+    system: "salesforce",
+    object_api_name: "Account",
+    operation: "upsert",
+  };
   $("plan-summary").textContent = `${spec.transformation_steps.length} steps`;
   $("plan-output").classList.remove("empty-state");
   $("plan-output").innerHTML = [
-    detailItem("Extract Source", spec.extract_source),
+    detailItem("Extract Source", spec.extract_source ?? "csv_upload"),
     detailItem(
       "Load Target",
-      `${spec.load_target.system} ${spec.load_target.object_api_name} ${spec.load_target.operation}`,
+      `${loadTarget.system} ${loadTarget.object_api_name} ${loadTarget.operation}`,
     ),
     detailItem("Objective", spec.business_objective),
     chipItem("Required Columns", spec.required_columns),
@@ -304,7 +309,9 @@ function renderExecution(body) {
   $("exec-output-count").textContent = body.metrics.output_row_count;
   $("exec-duplicates-count").textContent = body.metrics.duplicate_rows_removed;
   $("exec-total").textContent = `$${Number(body.metrics.output_purchase_total).toFixed(2)}`;
-  renderSalesforceLoadPlan(body.salesforce_load_plan);
+  if (body.salesforce_load_plan) {
+    renderSalesforceLoadPlan(body.salesforce_load_plan);
+  }
   renderFindings("validation-findings", body.validation_findings);
   $("execution-table").classList.remove("empty-state");
   $("execution-table").innerHTML = tableHtml(
@@ -314,7 +321,11 @@ function renderExecution(body) {
 }
 
 function renderSalesforceLoadPlan(plan) {
-  const target = plan.target;
+  const target = plan.target ?? {
+    object_api_name: "Account",
+    operation: "upsert",
+    external_id_field: "External_Id__c",
+  };
   $("salesforce-load-plan").classList.remove("empty-state");
   $("salesforce-load-plan").innerHTML = [
     detailItem("Target", `${target.object_api_name} ${target.operation}`),
