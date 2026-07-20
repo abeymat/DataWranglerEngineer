@@ -1,0 +1,9 @@
+customer_id,customer_name,address,phone,purchase_amount,transaction_date,status
+C001,Ada North,"12 Pine St, Austin TX",512-555-0101,"120.50",2026-05-01,Active
+C001,Ada North,"12 Pine St, Austin TX",512-555-0101,"120.50",2026-05-01,Active
+C001,Ada North,"77 Lake Rd, Austin TX",+1 512 555 0199,"80",05/15/2026,Active
+C002,Ben Ortiz,"4 Market St, Denver CO",303.555.0144,"210.00",2026-04-18,Active
+C002,Ben Ortiz,"9 Union Ave, Denver CO",3035550144,"35.25",not-a-date,UnexpectedTier
+,Missing Id,"10 Null Way, Boise ID",208-555-0188,"18.00",2026-03-07,Active
+C003,Chen Li,,"415 555 0110","1,250.00",2026-06-11,Inactive
+C004,Dina Shah,"88 Cedar Blvd, Miami FL",bad-phone,"42.75",2026-06-12,Prospect

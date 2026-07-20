@@ -1,0 +1,6 @@
+customer_id,customer_name,address,phone,purchase_amount,transaction_date,status
+C010,Iris Reed,"40 Main St, Salem OR",503-555-1100,"65.00",2026-06-01,Active
+C010,Iris Reed,"44 Main St, Salem OR",1-503-555-1101,"95.75",2026-06-08,Active
+C011,Jules Kim,"1 Hill Rd, Reno NV",(775) 555-1200,"130",2026-05-25,Active
+C011,Jules Kim,"1 Hill Rd, Reno NV",(775) 555-1200,"130",2026-05-25,Active
+C012,Mara Bell,,"702-555-1300","0",bad-date,Review
