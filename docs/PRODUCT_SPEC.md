@@ -26,6 +26,7 @@ Create one row per customer. Combine all unique addresses into a readable addres
 
 - CSV ingestion with file type, size, delimiter, encoding, null, duplicate, malformed-value, identifier, and type profiling.
 - VLOOKUP-style two-CSV lookup preview using safe Polars left joins.
+- Standalone browser workbench for CSV upload, profiling, planning, generation, and lookup preview.
 - Pydantic workflow specification model.
 - Operation graph that translates to Polars code.
 - AST allowlist only as a secondary guard for generated code display or constrained snippets.

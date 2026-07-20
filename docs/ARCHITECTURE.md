@@ -18,6 +18,7 @@ Data Wrangler Engineer is a modular FastAPI application with a standalone web UI
 - `app.persistence`: SQLite repository and replaceable storage interface.
 - `app.openai_client`: Responses API client, prompt loading, structured output validation, mocks.
 - `app.salesforce`: output contract and Salesforce-ready CSV helpers.
+- `app.static`: standalone browser workbench served by FastAPI for local demos.
 
 ## Security Boundaries
 
@@ -41,6 +42,9 @@ Data Wrangler Engineer is a modular FastAPI application with a standalone web UI
 - `GET /api/v1/executions/{id}`
 - `GET /health`
 - `GET /ready`
+- `GET /`
+- `GET /static/*`
+- `GET /samples/*`
 
 ## Salesforce Contract
 

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Wrangler Engineer</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Build Week Workbench</p>
+        <h1>Data Wrangler Engineer</h1>
+      </div>
+      <nav class="header-actions" aria-label="Primary">
+        <a href="/docs" class="ghost-link">API Docs</a>
+        <span id="api-status" class="status-pill">Checking</span>
+      </nav>
+    </header>
+
+    <main class="workspace">
+      <section class="panel dataset-panel" aria-labelledby="dataset-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Dataset</p>
+            <h2 id="dataset-title">Profile CSV</h2>
+          </div>
+          <button id="load-demo" class="secondary-button" type="button">Load Sample</button>
+        </div>
+
+        <label class="file-drop">
+          <input id="dataset-file" type="file" accept=".csv,text/csv" />
+          <span id="dataset-file-label">Choose primary CSV</span>
+        </label>
+
+        <button id="profile-button" class="primary-button" type="button">Profile Dataset</button>
+
+        <div class="metric-grid" aria-label="Dataset metrics">
+          <div>
+            <span class="metric-label">Rows</span>
+            <strong id="metric-rows">-</strong>
+          </div>
+          <div>
+            <span class="metric-label">Columns</span>
+            <strong id="metric-columns">-</strong>
+          </div>
+          <div>
+            <span class="metric-label">Duplicates</span>
+            <strong id="metric-duplicates">-</strong>
+          </div>
+          <div>
+            <span class="metric-label">Warnings</span>
+            <strong id="metric-warnings">-</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel request-panel" aria-labelledby="request-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Instruction</p>
+            <h2 id="request-title">Ask In Plain English</h2>
+          </div>
+          <button id="demo-instruction" class="secondary-button" type="button">Demo Request</button>
+        </div>
+
+        <textarea id="instruction" rows="9"></textarea>
+
+        <div class="button-row">
+          <button id="plan-button" class="primary-button" type="button">Create Plan</button>
+          <button id="generate-button" class="secondary-button" type="button">Generate Workflow</button>
+        </div>
+      </section>
+
+      <section class="panel status-panel" aria-labelledby="status-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Run State</p>
+            <h2 id="status-title">Workflow Timeline</h2>
+          </div>
+        </div>
+        <ol id="timeline" class="timeline">
+          <li data-step="profile">Dataset profile waiting</li>
+          <li data-step="plan">Transformation plan waiting</li>
+          <li data-step="generate">Polars workflow waiting</li>
+          <li data-step="execute">Execution layer next</li>
+        </ol>
+      </section>
+
+      <section class="results-shell">
+        <div class="tab-bar" role="tablist" aria-label="Result views">
+          <button class="tab-button active" data-tab="profile" type="button">Profile</button>
+          <button class="tab-button" data-tab="plan" type="button">Plan</button>
+          <button class="tab-button" data-tab="graph" type="button">Graph</button>
+          <button class="tab-button" data-tab="code" type="button">Polars</button>
+          <button class="tab-button" data-tab="lookup" type="button">Lookup</button>
+        </div>
+
+        <section id="tab-profile" class="tab-panel active">
+          <div class="section-heading">
+            <h2>Schema Profile</h2>
+            <span id="profile-summary" class="subtle">No dataset profiled</span>
+          </div>
+          <div id="profile-table" class="table-wrap empty-state">Waiting for a CSV profile.</div>
+          <div id="quality-warnings" class="warning-list"></div>
+        </section>
+
+        <section id="tab-plan" class="tab-panel">
+          <div class="section-heading">
+            <h2>Structured Plan</h2>
+            <span id="plan-summary" class="subtle">No plan created</span>
+          </div>
+          <div id="plan-output" class="detail-grid empty-state">Waiting for a workflow plan.</div>
+        </section>
+
+        <section id="tab-graph" class="tab-panel">
+          <div class="section-heading">
+            <h2>Operation Graph</h2>
+            <span id="graph-summary" class="subtle">No graph generated</span>
+          </div>
+          <div id="graph-output" class="operation-list empty-state">Waiting for generation.</div>
+        </section>
+
+        <section id="tab-code" class="tab-panel">
+          <div class="section-heading">
+            <h2>Generated Polars</h2>
+            <span class="subtle">Approved operation renderer</span>
+          </div>
+          <pre id="code-output" class="code-block">Waiting for generated workflow.</pre>
+        </section>
+
+        <section id="tab-lookup" class="tab-panel">
+          <div class="lookup-layout">
+            <div class="lookup-form">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">VLOOKUP</p>
+                  <h2>Lookup Preview</h2>
+                </div>
+                <button id="load-lookup-samples" class="secondary-button" type="button">
+                  Load Samples
+                </button>
+              </div>
+
+              <label>
+                Primary CSV
+                <input id="lookup-left-file" type="file" accept=".csv,text/csv" />
+                <span id="lookup-left-label" class="file-name">No file selected</span>
+              </label>
+              <label>
+                Lookup CSV
+                <input id="lookup-right-file" type="file" accept=".csv,text/csv" />
+                <span id="lookup-right-label" class="file-name">No file selected</span>
+              </label>
+              <div class="form-grid">
+                <label>
+                  Primary Key
+                  <input id="left-key" value="customer_id" />
+                </label>
+                <label>
+                  Lookup Key
+                  <input id="right-key" value="customer_id" />
+                </label>
+              </div>
+              <label>
+                Lookup Columns
+                <input id="lookup-columns" value="customer_name,salesforce_account_id" />
+              </label>
+              <button id="lookup-button" class="primary-button" type="button">Run Lookup</button>
+            </div>
+
+            <div class="lookup-results">
+              <div class="metric-grid">
+                <div>
+                  <span class="metric-label">Input</span>
+                  <strong id="lookup-input-count">-</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Output</span>
+                  <strong id="lookup-output-count">-</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Matched</span>
+                  <strong id="lookup-matched-count">-</strong>
+                </div>
+                <div>
+                  <span class="metric-label">Unmatched</span>
+                  <strong id="lookup-unmatched-count">-</strong>
+                </div>
+              </div>
+              <div id="lookup-warnings" class="warning-list"></div>
+              <div id="lookup-table" class="table-wrap empty-state">Waiting for lookup output.</div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
