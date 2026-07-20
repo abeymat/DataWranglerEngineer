@@ -69,6 +69,7 @@
         <div class="button-row">
           <button id="plan-button" class="primary-button" type="button">Create Plan</button>
           <button id="generate-button" class="secondary-button" type="button">Generate Workflow</button>
+          <button id="execute-button" class="secondary-button" type="button">Execute</button>
         </div>
       </section>
 
@@ -93,6 +94,7 @@
           <button class="tab-button" data-tab="plan" type="button">Plan</button>
           <button class="tab-button" data-tab="graph" type="button">Graph</button>
           <button class="tab-button" data-tab="code" type="button">Polars</button>
+          <button class="tab-button" data-tab="output" type="button">Output</button>
           <button class="tab-button" data-tab="lookup" type="button">Lookup</button>
         </div>
 
@@ -127,6 +129,33 @@
             <span class="subtle">Approved operation renderer</span>
           </div>
           <pre id="code-output" class="code-block">Waiting for generated workflow.</pre>
+        </section>
+
+        <section id="tab-output" class="tab-panel">
+          <div class="section-heading">
+            <h2>Execution Output</h2>
+            <span id="execution-summary" class="subtle">No execution yet</span>
+          </div>
+          <div class="metric-grid output-metrics">
+            <div>
+              <span class="metric-label">Input Rows</span>
+              <strong id="exec-input-count">-</strong>
+            </div>
+            <div>
+              <span class="metric-label">Output Rows</span>
+              <strong id="exec-output-count">-</strong>
+            </div>
+            <div>
+              <span class="metric-label">Duplicates Removed</span>
+              <strong id="exec-duplicates-count">-</strong>
+            </div>
+            <div>
+              <span class="metric-label">Purchase Total</span>
+              <strong id="exec-total">-</strong>
+            </div>
+          </div>
+          <div id="validation-findings" class="finding-list"></div>
+          <div id="execution-table" class="table-wrap empty-state">Waiting for workflow execution.</div>
         </section>
 
         <section id="tab-lookup" class="tab-panel">

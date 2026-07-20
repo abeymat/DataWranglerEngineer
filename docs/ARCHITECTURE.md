@@ -35,6 +35,7 @@ Data Wrangler Engineer is a modular FastAPI application with a standalone web UI
 - `POST /api/v1/lookups/preview`
 - `POST /api/v1/workflows/plan`
 - `POST /api/v1/workflows/generate`
+- `POST /api/v1/workflows/execute`
 - `POST /api/v1/workflows/{id}/execute`
 - `POST /api/v1/workflows/{id}/repair`
 - `GET /api/v1/workflows/{id}`

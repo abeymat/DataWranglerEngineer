@@ -2,6 +2,7 @@ const state = {
   profile: null,
   spec: null,
   generated: null,
+  execution: null,
   datasetFile: null,
   lookupLeftFile: null,
   lookupRightFile: null,
@@ -44,6 +45,7 @@ function bindWorkflowControls() {
   });
   $("plan-button").addEventListener("click", () => runAction(createPlan));
   $("generate-button").addEventListener("click", () => runAction(generateWorkflow));
+  $("execute-button").addEventListener("click", () => runAction(executeWorkflow));
 }
 
 function bindLookupControls() {
@@ -159,6 +161,23 @@ async function generateWorkflow() {
   activateTab("graph");
 }
 
+async function executeWorkflow() {
+  if (!state.generated) {
+    await generateWorkflow();
+  }
+  if (!state.generated || !state.datasetFile) return;
+
+  const formData = new FormData();
+  formData.append("file", state.datasetFile);
+  formData.append("operation_graph", JSON.stringify(state.generated.operation_graph));
+
+  const body = await postForm("/api/v1/workflows/execute", formData);
+  state.execution = body;
+  renderExecution(body);
+  setStep("execute", "Workflow executed and validated", body.execution_status === "passed");
+  activateTab("output");
+}
+
 async function runLookup() {
   if (!state.lookupLeftFile || !state.lookupRightFile) {
     toast("Choose lookup files or load samples.");
@@ -267,6 +286,21 @@ function renderLookup(body) {
   );
 }
 
+function renderExecution(body) {
+  $("execution-summary").textContent =
+    `${body.execution_status} in ${body.duration_ms}ms - ${body.graph_id}`;
+  $("exec-input-count").textContent = body.metrics.input_row_count;
+  $("exec-output-count").textContent = body.metrics.output_row_count;
+  $("exec-duplicates-count").textContent = body.metrics.duplicate_rows_removed;
+  $("exec-total").textContent = `$${Number(body.metrics.output_purchase_total).toFixed(2)}`;
+  renderFindings("validation-findings", body.validation_findings);
+  $("execution-table").classList.remove("empty-state");
+  $("execution-table").innerHTML = tableHtml(
+    body.output_columns,
+    body.preview_rows.map((row) => body.output_columns.map((column) => row[column] ?? "")),
+  );
+}
+
 function detailItem(title, value) {
   return `
     <article class="detail-item">
@@ -295,6 +329,18 @@ function chips(values) {
 function renderWarnings(targetId, warnings) {
   const target = $(targetId);
   target.innerHTML = warnings.map((warning) => `<p>${escapeHtml(warning)}</p>`).join("");
+}
+
+function renderFindings(targetId, findings) {
+  const target = $(targetId);
+  target.innerHTML = findings
+    .map(
+      (finding) =>
+        `<p class="${escapeHtml(finding.status)}"><strong>${escapeHtml(
+          finding.status,
+        )}</strong> - ${escapeHtml(finding.message)}</p>`,
+    )
+    .join("");
 }
 
 function tableHtml(headers, rows) {
