@@ -29,6 +29,15 @@ Open:
 6. Click `Run ETL`.
 7. Review the Salesforce load prep tab for field mappings and readiness.
 
+## Build Week Submission Notes
+
+- Suggested category: developer tool or business/productivity tool, depending on the final submission form options.
+- Repository URL: `https://github.com/abeymat/DataWranglerEngineer`
+- Submission support files live in `submission/`.
+- The demo video should be under 3 minutes and show the app working end to end.
+- The narration should explicitly cover where Codex accelerated engineering work and where GPT-5.6 is configured for future OpenAI-backed planning/generation.
+- Get the Codex session ID with `/feedback` from the Codex session where the core functionality was built, then paste that ID into the submission form.
+
 ## Main API Endpoints
 
 - `POST /api/v1/datasets/profile`
