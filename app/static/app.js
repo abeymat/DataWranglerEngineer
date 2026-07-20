@@ -8,6 +8,15 @@ const state = {
   lookupRightFile: null,
 };
 
+const requiredCustomerColumns = [
+  "customer_id",
+  "customer_name",
+  "address",
+  "phone",
+  "purchase_amount",
+  "transaction_date",
+];
+
 const demoInstruction =
   "Create one row per customer. Combine all unique addresses into a readable address list, " +
   "normalize U.S. phone numbers, calculate total purchases, retain the most recent transaction " +
@@ -33,6 +42,7 @@ function bindTabs() {
 function bindDatasetControls() {
   $("dataset-file").addEventListener("change", (event) => {
     state.datasetFile = event.target.files[0] ?? null;
+    resetWorkflowState();
     $("dataset-file-label").textContent = state.datasetFile?.name ?? "Choose primary CSV";
   });
   $("load-demo").addEventListener("click", () => runAction(loadDemoDataset));
@@ -80,6 +90,7 @@ async function checkApiStatus() {
 }
 
 async function loadDemoDataset() {
+  resetWorkflowState();
   state.datasetFile = await fileFromSample(
     "/samples/customer_wrangling_demo.csv",
     "customer_wrangling_demo.csv",
@@ -152,6 +163,7 @@ async function generateWorkflow() {
     await createPlan();
   }
   if (!state.spec) return;
+  if (!ensureRequiredColumnsAvailable()) return;
 
   const body = await postJson("/api/v1/workflows/generate", { spec: state.spec });
   state.generated = body;
@@ -166,6 +178,7 @@ async function executeWorkflow() {
     await generateWorkflow();
   }
   if (!state.generated || !state.datasetFile) return;
+  if (!ensureRequiredColumnsAvailable()) return;
 
   hideExecutionError();
   let body;
@@ -250,6 +263,32 @@ async function parseResponse(response) {
 
 function isStaleGraphError(error) {
   return ["invalid_graph", "unsupported_graph", "invalid_operation_graph"].includes(error.category);
+}
+
+function ensureRequiredColumnsAvailable() {
+  const availableColumns = new Set(state.profile?.columns?.map((column) => column.name) ?? []);
+  const missingColumns = requiredCustomerColumns.filter((column) => !availableColumns.has(column));
+  if (missingColumns.length === 0) return true;
+
+  showExecutionError({
+    message:
+      "This ETL workflow expects the customer Salesforce demo schema. Missing column(s): " +
+      missingColumns.join(", ") +
+      ". Click Load Sample for the demo dataset, or upload a CSV with these exact columns.",
+  });
+  return false;
+}
+
+function resetWorkflowState() {
+  state.profile = null;
+  state.spec = null;
+  state.generated = null;
+  state.execution = null;
+  hideExecutionError();
+  setStep("profile", "Extract profile waiting", false);
+  setStep("plan", "Transform plan waiting", false);
+  setStep("generate", "Polars transform waiting", false);
+  setStep("execute", "Load preparation waiting", false);
 }
 
 function renderProfile(profile) {
