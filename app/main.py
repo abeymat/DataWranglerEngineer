@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.datasets import router as datasets_router
+from app.api.lookups import router as lookups_router
 from app.api.workflows import router as workflows_router
 from app.core.errors import register_exception_handlers
 from app.core.logging import CorrelationIdMiddleware
@@ -23,6 +24,7 @@ def create_app() -> FastAPI:
 
     register_exception_handlers(app)
     app.include_router(datasets_router, prefix="/api/v1")
+    app.include_router(lookups_router, prefix="/api/v1")
     app.include_router(workflows_router, prefix="/api/v1")
 
     @app.get("/health")

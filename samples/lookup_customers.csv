@@ -1,0 +1,4 @@
+customer_id,customer_name,salesforce_account_id
+C001,Ada North,001AAA
+C002,Ben Ortiz,001BBB
+C002,Ben Ortiz Duplicate,001BBB-DUP

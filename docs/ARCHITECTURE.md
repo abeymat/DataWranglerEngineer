@@ -9,6 +9,7 @@ Data Wrangler Engineer is a modular FastAPI application with a standalone web UI
 - `app.core`: settings, logging, correlation IDs, error envelopes.
 - `app.api`: FastAPI routers and typed request/response DTOs.
 - `app.ingestion`: CSV validation, loading, schema profiling, and sample redaction.
+- `app.lookup`: deterministic VLOOKUP-style joins for appending fields from a lookup dataset.
 - `app.planning`: natural-language requirement interpretation into `WorkflowSpec`.
 - `app.operations`: approved transformation operation graph and Polars code renderer.
 - `app.execution`: controlled worker process, timeouts, stdout/error capture, cleanup.
@@ -30,6 +31,7 @@ Data Wrangler Engineer is a modular FastAPI application with a standalone web UI
 ## API Surface
 
 - `POST /api/v1/datasets/profile`
+- `POST /api/v1/lookups/preview`
 - `POST /api/v1/workflows/plan`
 - `POST /api/v1/workflows/generate`
 - `POST /api/v1/workflows/{id}/execute`

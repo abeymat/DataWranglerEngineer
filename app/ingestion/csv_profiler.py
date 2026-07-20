@@ -1,6 +1,4 @@
-import csv
 import hashlib
-import io
 import re
 from collections import Counter
 from datetime import datetime
@@ -9,7 +7,7 @@ from typing import Any
 import polars as pl
 from fastapi import UploadFile
 
-from app.core.errors import AppError
+from app.ingestion.csv_loader import load_csv_upload
 from app.ingestion.models import (
     ColumnProfile,
     DatasetProfile,
@@ -17,36 +15,17 @@ from app.ingestion.models import (
     DatasetQuality,
 )
 
-ALLOWED_CSV_EXTENSIONS = {".csv"}
 SAMPLE_LIMIT = 5
 
 
 async def profile_csv_upload(file: UploadFile, max_upload_bytes: int) -> DatasetProfileResponse:
-    filename = file.filename or "uploaded.csv"
-    if not filename.lower().endswith(tuple(ALLOWED_CSV_EXTENSIONS)):
-        raise AppError(
-            "Only CSV uploads are supported in this version.",
-            "unsupported_file_type",
-            415,
-        )
-
-    content = await file.read()
-    if len(content) > max_upload_bytes:
-        raise AppError("Uploaded file exceeds the configured size limit.", "file_too_large", 413)
-    if not content:
-        raise AppError("Uploaded file is empty.", "empty_file", 400)
-
-    text, encoding = _decode_csv_bytes(content)
-    delimiter = _detect_delimiter(text)
-    malformed_count = _count_malformed_rows(text, delimiter)
-    dataframe = _read_csv(text, delimiter)
-
+    loaded = await load_csv_upload(file, max_upload_bytes=max_upload_bytes)
     profile = profile_dataframe(
-        dataframe=dataframe,
-        filename=filename,
-        delimiter=delimiter,
-        encoding=encoding,
-        malformed_row_count=malformed_count,
+        dataframe=loaded.dataframe,
+        filename=loaded.filename,
+        delimiter=loaded.detected_delimiter,
+        encoding=loaded.encoding,
+        malformed_row_count=loaded.malformed_row_count,
     )
     return DatasetProfileResponse(profile=profile)
 
@@ -88,50 +67,6 @@ def profile_dataframe(
         schema_fingerprint=schema_fingerprint,
         preview_rows=dataframe.head(SAMPLE_LIMIT).to_dicts(),
     )
-
-
-def _decode_csv_bytes(content: bytes) -> tuple[str, str]:
-    for encoding in ("utf-8-sig", "utf-8", "latin-1"):
-        try:
-            return content.decode(encoding), encoding
-        except UnicodeDecodeError:
-            continue
-    raise AppError("Could not decode CSV using supported encodings.", "encoding_error", 400)
-
-
-def _detect_delimiter(text: str) -> str:
-    sample = text[:8192]
-    try:
-        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t|")
-        return dialect.delimiter
-    except csv.Error:
-        return ","
-
-
-def _count_malformed_rows(text: str, delimiter: str) -> int:
-    reader = csv.reader(io.StringIO(text), delimiter=delimiter)
-    rows = list(reader)
-    if not rows:
-        return 0
-    expected = len(rows[0])
-    return sum(1 for row in rows[1:] if len(row) != expected)
-
-
-def _read_csv(text: str, delimiter: str) -> pl.DataFrame:
-    try:
-        return pl.read_csv(
-            io.BytesIO(text.encode("utf-8")),
-            separator=delimiter,
-            infer_schema_length=200,
-            ignore_errors=False,
-            null_values=["", "NULL", "null", "None", "N/A", "n/a"],
-        )
-    except Exception as exc:
-        raise AppError(
-            "CSV parsing failed. No records were discarded; fix the file and try again.",
-            "csv_parse_error",
-            400,
-        ) from exc
 
 
 def _profile_column(dataframe: pl.DataFrame, column: str) -> ColumnProfile:
