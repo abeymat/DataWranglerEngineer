@@ -394,6 +394,19 @@ th {
   background: #fff1f0;
 }
 
+.error-panel {
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid #f0b8b3;
+  border-radius: 8px;
+  background: #fff3f1;
+  color: var(--red);
+}
+
+.error-panel p {
+  margin: 8px 0 0;
+}
+
 .detail-grid,
 .operation-list {
   display: grid;

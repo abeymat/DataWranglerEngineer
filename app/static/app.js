@@ -167,11 +167,22 @@ async function executeWorkflow() {
   }
   if (!state.generated || !state.datasetFile) return;
 
-  const formData = new FormData();
-  formData.append("file", state.datasetFile);
-  formData.append("operation_graph", JSON.stringify(state.generated.operation_graph));
+  hideExecutionError();
+  let body;
+  try {
+    body = await executeGeneratedWorkflow();
+  } catch (error) {
+    if (!isStaleGraphError(error)) {
+      showExecutionError(error);
+      throw error;
+    }
 
-  const body = await postForm("/api/v1/workflows/execute", formData);
+    state.generated = null;
+    await generateWorkflow();
+    body = await executeGeneratedWorkflow();
+    toast("Regenerated the ETL graph and reran successfully.");
+  }
+
   state.execution = body;
   renderExecution(body);
   setStep(
@@ -182,6 +193,14 @@ async function executeWorkflow() {
     body.execution_status === "passed" && body.salesforce_load_plan.ready_for_load,
   );
   activateTab("output");
+}
+
+async function executeGeneratedWorkflow() {
+  const formData = new FormData();
+  formData.append("file", state.datasetFile);
+  formData.append("operation_graph", JSON.stringify(state.generated.operation_graph));
+
+  return postForm("/api/v1/workflows/execute", formData);
 }
 
 async function runLookup() {
@@ -220,9 +239,17 @@ async function postJson(url, payload) {
 async function parseResponse(response) {
   const body = await response.json();
   if (!response.ok || body.success === false) {
-    throw new Error(body.error ?? "Request failed");
+    const error = new Error(body.error ?? "Request failed");
+    error.category = body.category;
+    error.correlationId = body.correlation_id;
+    error.status = response.status;
+    throw error;
   }
   return body;
+}
+
+function isStaleGraphError(error) {
+  return ["invalid_graph", "unsupported_graph", "invalid_operation_graph"].includes(error.category);
 }
 
 function renderProfile(profile) {
@@ -305,6 +332,7 @@ function renderLookup(body) {
 function renderExecution(body) {
   $("execution-summary").textContent =
     `${body.execution_status} in ${body.duration_ms}ms - ${body.graph_id}`;
+  hideExecutionError();
   $("exec-input-count").textContent = body.metrics.input_row_count;
   $("exec-output-count").textContent = body.metrics.output_row_count;
   $("exec-duplicates-count").textContent = body.metrics.duplicate_rows_removed;
@@ -318,6 +346,28 @@ function renderExecution(body) {
     body.output_columns,
     body.preview_rows.map((row) => body.output_columns.map((column) => row[column] ?? "")),
   );
+}
+
+function showExecutionError(error) {
+  const target = $("execution-error");
+  target.hidden = false;
+  target.innerHTML = `
+    <strong>Run ETL failed</strong>
+    <p>${escapeHtml(error.message ?? "The ETL execution failed.")}</p>
+    ${
+      error.correlationId
+        ? `<p class="subtle">Correlation ID: ${escapeHtml(error.correlationId)}</p>`
+        : ""
+    }
+  `;
+  activateTab("output");
+}
+
+function hideExecutionError() {
+  const target = $("execution-error");
+  if (!target) return;
+  target.hidden = true;
+  target.innerHTML = "";
 }
 
 function renderSalesforceLoadPlan(plan) {

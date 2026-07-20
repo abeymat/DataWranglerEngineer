@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Salesforce ETL Engineer</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260720-2" />
   </head>
   <body>
     <header class="app-header">
@@ -157,6 +157,7 @@
           <div id="salesforce-load-plan" class="detail-grid empty-state">
             Waiting for Salesforce load plan.
           </div>
+          <div id="execution-error" class="error-panel" hidden></div>
           <div id="validation-findings" class="finding-list"></div>
           <div id="execution-table" class="table-wrap empty-state">Waiting for ETL execution.</div>
         </section>
@@ -229,6 +230,6 @@
     </main>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=20260720-2"></script>
   </body>
 </html>
