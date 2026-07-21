@@ -56,7 +56,7 @@ class _ResponsesParser(Protocol):
         reasoning: dict[str, str],
         store: bool,
         max_output_tokens: int,
-        verbosity: str,
+        text: dict[str, str],
         metadata: dict[str, str],
     ) -> _ParsedWorkflowResponse: ...
 
@@ -89,7 +89,7 @@ class OpenAIResponsesWorkflowPlanner:
                 reasoning={"effort": self._settings.openai_reasoning_effort},
                 store=False,
                 max_output_tokens=self._settings.openai_max_output_tokens,
-                verbosity="low",
+                text={"verbosity": "low"},
                 metadata={
                     "product": "salesforce_etl_engineer",
                     "prompt_version": PROMPT_VERSION,

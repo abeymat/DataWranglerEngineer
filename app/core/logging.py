@@ -14,6 +14,17 @@ logging.basicConfig(
 )
 
 
+class _CorrelationIdFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        if not hasattr(record, "correlation_id"):
+            record.correlation_id = "-"
+        return True
+
+
+for handler in logging.getLogger().handlers:
+    handler.addFilter(_CorrelationIdFilter())
+
+
 class _CorrelationAdapter(logging.LoggerAdapter[logging.Logger]):
     def process(
         self,

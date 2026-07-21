@@ -92,7 +92,7 @@ class _FakeResponses:
         reasoning: dict[str, str],
         store: bool,
         max_output_tokens: int,
-        verbosity: str,
+        text: dict[str, str],
         metadata: dict[str, str],
     ) -> _ParsedWorkflowResponse:
         self.call = {
@@ -103,7 +103,7 @@ class _FakeResponses:
             "reasoning": reasoning,
             "store": store,
             "max_output_tokens": max_output_tokens,
-            "verbosity": verbosity,
+            "text": text,
             "metadata": metadata,
         }
         return cast(_ParsedWorkflowResponse, _FakeResponse(output_parsed=self.output))
@@ -134,7 +134,7 @@ def test_gpt56_planner_uses_responses_structured_output_and_explicit_reasoning()
     assert fake_responses.call["model"] == "gpt-5.6-sol"
     assert fake_responses.call["reasoning"] == {"effort": "medium"}
     assert fake_responses.call["store"] is False
-    assert fake_responses.call["verbosity"] == "low"
+    assert fake_responses.call["text"] == {"verbosity": "low"}
     assert fake_responses.call["text_format"] is ModelWorkflowPlan
     assert result.effective_model == "gpt-5.6-sol"
     assert result.response_id == "resp_build_week_56"
