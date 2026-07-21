@@ -5,10 +5,11 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
-.coverage
+.coverage*
 htmlcov/
 *.pyc
 *.log
 uploads/
 results/
 data_wrangler.db
+salesforce_etl_workflows.db

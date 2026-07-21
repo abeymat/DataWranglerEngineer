@@ -19,7 +19,8 @@ The current load stage does not write directly to Salesforce. It prepares and va
 - `app/main.py`: FastAPI app factory, health/readiness routes, static UI, samples, and API routers.
 - `app/api/`: dataset, lookup, workflow, and Salesforce load-plan endpoints.
 - `app/ingestion/`: CSV loading and profiling.
-- `app/planning/`: ETL planning models and deterministic demo planner.
+- `app/planning/`: ETL planning models, approved-plan policy, orchestration, and local fallback.
+- `app/openai_client/`: GPT-5.6 Sol Responses API structured planning integration.
 - `app/operations/`: approved operation graph models, generator, and Polars renderer.
 - `app/execution/`: worker-process execution, result models, transformation logic, and validation.
 - `app/salesforce/`: Salesforce load target, field mapping, and readiness contract.
@@ -44,7 +45,8 @@ The current load stage does not write directly to Salesforce. It prepares and va
 - Direct Salesforce writes are not implemented and should not be implied.
 - Workflow persistence is documented but not yet implemented.
 - Repair loop is planned but not yet implemented in the main path.
-- OpenAI Responses API integration is planned but currently represented by deterministic local planning/generation.
+- The GPT-5.6 planner is intentionally bounded to the approved customer-to-Account workflow; the
+  general operation catalog remains limited.
 - Execution worker is not a hardened operating-system sandbox.
 - CSV export/download button is still needed for a complete load handoff.
 - Salesforce Apex/LWC metadata for this revised ETL contract is not yet implemented in this workspace.
@@ -56,6 +58,10 @@ The current load stage does not write directly to Salesforce. It prepares and va
 - Errors are sanitized before returning from worker execution.
 - No credentials or Salesforce org identifiers are required for the current local demo.
 - `.env.example` uses placeholders and should remain secret-free.
+- GPT-5.6 receives schema-quality metadata and the business instruction, not sample values,
+  preview rows, filenames, API keys, or complete source data.
+- OpenAI errors are reduced to sanitized categories. `auto` mode exposes fallback provenance;
+  `openai` mode fails cleanly instead of silently presenting a local result as AI-generated.
 - Direct Salesforce mutation requires a separate security design with Named Credentials, OAuth, approvals, retry policy, audit logging, and tests.
 
 ## How The Application Currently Runs

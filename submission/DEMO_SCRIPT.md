@@ -18,7 +18,8 @@ Salesforce imports are often prepared in spreadsheets or one-off scripts. That m
 4. Show row count, columns, duplicates, warnings, and schema profile.
 5. Click `Demo Request`.
 6. Click `Plan Transform`.
-7. Show the structured ETL plan with extract source and Salesforce Account load target.
+7. Show `gpt-5.6-sol · medium reasoning`, the OpenAI response ID, the structured ETL plan, and the
+   Salesforce Account load target.
 8. Click `Generate Transform`.
 9. Show the approved operation graph and generated Polars artifact.
 10. Click `Run ETL`.
@@ -29,7 +30,15 @@ Salesforce imports are often prepared in spreadsheets or one-off scripts. That m
 
 Codex accelerated the project as an engineering agent: it audited the starting repo, designed the ETL architecture, implemented FastAPI and Polars modules, built the UI, debugged runtime errors, added tests, and produced documentation.
 
-The project is configured for GPT-5.6 with `OPENAI_MODEL=gpt-5.6-sol`. The deterministic demo path lets judges run the workflow without an API key, and the next phase wires GPT-5.6 into structured workflow planning and repair.
+GPT-5.6 Sol is the live planning engine in this recording. The Responses API receives the business
+instruction and schema-quality metadata, returns strict structured output, and is prevented from
+changing the executable operation graph. The response ID on screen demonstrates the live call.
+The repository also includes a clearly labeled deterministic mode so judges can run the full ETL
+flow without providing an API key.
+
+Do not show an `approved local planner` result while narrating it as GPT-5.6. Before recording,
+set `OPENAI_PLANNING_MODE=openai`, restart the server, and confirm the Plan tab names
+`gpt-5.6-sol` and displays a response ID.
 
 ## Close
 

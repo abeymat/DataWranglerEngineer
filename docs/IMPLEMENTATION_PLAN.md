@@ -15,6 +15,8 @@
 
 ## Phase 3: Transform Foundation
 
+- Use `gpt-5.6-sol` through Responses API structured outputs for schema-only requirement
+  interpretation, with an explicit `medium` reasoning baseline and approved local fallback.
 - Continue using typed `WorkflowSpec` and approved operation graphs.
 - Keep Polars as the only transformation engine.
 - Expand the operation catalog for common Salesforce ETL tasks: picklists, external IDs, owner assignment, reference lookups, date/time normalization, and multi-object splits.
@@ -77,4 +79,7 @@
 2. Workflow plan includes extract source and Salesforce load target.
 3. Execution response includes Salesforce load readiness and field mappings.
 4. UI presents an ETL timeline and Salesforce load prep panel.
-5. Tests cover load contract, workflow planning, execution response, and UI copy.
+5. GPT-5.6 Sol structured planning is implemented with model provenance, safe context reduction,
+   response validation, policy reconciliation, transient retry configuration, and a no-key path.
+6. Tests cover load contracts, deterministic and mocked GPT planning, privacy boundaries,
+   fallback behavior, execution responses, and UI copy without requiring a real API key.

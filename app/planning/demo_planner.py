@@ -1,4 +1,5 @@
 from app.planning.models import (
+    PlanningMetadata,
     TransformationAction,
     TransformationStep,
     ValidationRule,
@@ -28,7 +29,7 @@ DEMO_OUTPUT_COLUMNS = [
 ]
 
 
-def plan_workflow(request: WorkflowPlanRequest) -> WorkflowPlanResponse:
+def build_demo_workflow_spec(request: WorkflowPlanRequest) -> WorkflowSpec:
     profile = request.dataset_profile
     available_columns = {column.name for column in profile.columns}
     missing_columns = [
@@ -41,13 +42,13 @@ def plan_workflow(request: WorkflowPlanRequest) -> WorkflowPlanResponse:
             "The dataset is missing required column(s): " + ", ".join(missing_columns)
         )
 
-    spec = WorkflowSpec(
+    return WorkflowSpec(
         workflow_name="Customer Account Salesforce ETL",
         business_objective=request.instruction,
         input_dataset=profile.filename,
         extract_source="csv_upload",
         required_columns=DEMO_REQUIRED_COLUMNS,
-        transformation_steps=_demo_steps(),
+        transformation_steps=demo_steps(),
         grouping_keys=["customer_id", "customer_name"],
         derived_columns=[
             "address_list",
@@ -58,7 +59,7 @@ def plan_workflow(request: WorkflowPlanRequest) -> WorkflowPlanResponse:
         aggregations=["sum purchase_amount as total_purchases"],
         sorting=["customer_name ascending", "customer_id ascending"],
         output_columns=DEMO_OUTPUT_COLUMNS,
-        validation_rules=_demo_validation_rules(),
+        validation_rules=demo_validation_rules(),
         assumptions=[
             "Rows with missing customer IDs are retained and flagged instead of discarded.",
             "U.S. phone numbers are normalized to +1XXXXXXXXXX when ten digits are available.",
@@ -67,10 +68,22 @@ def plan_workflow(request: WorkflowPlanRequest) -> WorkflowPlanResponse:
         ],
         warnings=warnings,
     )
-    return WorkflowPlanResponse(spec=spec)
 
 
-def _demo_steps() -> list[TransformationStep]:
+def plan_workflow(request: WorkflowPlanRequest) -> WorkflowPlanResponse:
+    """Return the approved local plan for direct callers and no-key demos."""
+    return WorkflowPlanResponse(
+        spec=build_demo_workflow_spec(request),
+        planning=PlanningMetadata(
+            provider="local",
+            effective_model="approved-local-planner",
+            prompt_version="deterministic_customer_salesforce_v1",
+            duration_ms=0,
+        ),
+    )
+
+
+def demo_steps() -> list[TransformationStep]:
     return [
         TransformationStep(
             step_id="step_001",
@@ -122,7 +135,7 @@ def _demo_steps() -> list[TransformationStep]:
     ]
 
 
-def _demo_validation_rules() -> list[ValidationRule]:
+def demo_validation_rules() -> list[ValidationRule]:
     return [
         ValidationRule(
             rule_id="val_001",

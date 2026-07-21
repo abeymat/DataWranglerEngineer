@@ -43,8 +43,15 @@ def create_app() -> FastAPI:
         return FileResponse(static_dir / "index.html")
 
     @app.get("/health")
-    def health() -> dict[str, str]:
-        return {"status": "ok", "service": settings.app_name, "version": settings.app_version}
+    def health() -> dict[str, str | bool]:
+        return {
+            "status": "ok",
+            "service": settings.app_name,
+            "version": settings.app_version,
+            "planning_mode": settings.openai_planning_mode,
+            "openai_model": settings.openai_model,
+            "openai_configured": settings.openai_api_key is not None,
+        }
 
     @app.get("/ready")
     def ready() -> dict[str, str]:

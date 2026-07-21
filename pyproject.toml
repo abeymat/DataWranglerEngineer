@@ -16,3 +16,7 @@ plugins = []
 strict = true
 warn_unused_ignores = true
 exclude = ["tests/fixtures"]
+
+[[tool.mypy.overrides]]
+module = ["openai", "openai.*"]
+follow_imports = "skip"

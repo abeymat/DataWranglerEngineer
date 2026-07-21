@@ -22,3 +22,4 @@ def test_static_assets_are_served() -> None:
 
     assert js_response.status_code == 200
     assert css_response.status_code == 200
+    assert "GPT-5.6 Sol Configured" in js_response.text

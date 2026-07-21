@@ -29,6 +29,7 @@ The project turns the data-load process into an explainable ETL workflow:
 ## Technical Architecture
 
 - FastAPI backend with typed Pydantic request/response models.
+- GPT-5.6 Sol through the Responses API for schema-only structured ETL planning.
 - Polars for profiling and transformation.
 - Controlled worker process for ETL execution.
 - Salesforce load contract module for Account upsert readiness.
@@ -41,11 +42,18 @@ Codex was used as an engineering agent to audit the repository, reshape the prod
 
 ## How GPT-5.6 Is Used
 
-The repo is configured for GPT-5.6 via `OPENAI_MODEL=gpt-5.6-sol`. The current reliable demo path uses deterministic local planning/generation so judges can run it without an API key. The next OpenAI-backed phase will use GPT-5.6 for structured requirement interpretation and workflow planning once API access is available for the running environment.
+GPT-5.6 Sol performs natural-language requirement interpretation through the Responses API. The
+app sends the instruction and schema-quality metadata, requests a strict Pydantic planning result
+at explicit `medium` reasoning, records the response ID and token usage, and applies an
+application-owned policy before any graph can be generated. The UI shows whether a plan came from
+`gpt-5.6-sol` or the approved no-key local fallback.
 
 ## Safety Design
 
 - Uploaded data is not persisted by default.
+- Filenames, sample values, preview rows, and full datasets are excluded from GPT-5.6 requests.
+- Model output cannot alter executable operations, Salesforce mappings, validation severity, or
+  direct-load behavior.
 - The app executes approved operation graphs, not arbitrary model-generated Python.
 - Worker execution is outside the main API process.
 - Errors are sanitized and surfaced with correlation IDs.
@@ -57,6 +65,7 @@ The repo is configured for GPT-5.6 via `OPENAI_MODEL=gpt-5.6-sol`. The current r
 - Salesforce ETL product pivot.
 - CSV profiling and quality reporting.
 - Structured workflow planning model.
+- GPT-5.6 Sol Responses API planning, versioned prompt, provenance, and mocked contract tests.
 - Approved Polars operation graph generation.
 - Controlled ETL execution and validation.
 - Salesforce Account upsert load contract.
@@ -69,7 +78,7 @@ The original reference project had a broader data analytics/Salesforce prototype
 
 ## Future Roadmap
 
-- GPT-5.6-backed structured planning and repair loop.
+- GPT-5.6-assisted bounded repair recommendations.
 - Workflow persistence and rerun history.
 - Downloadable CSV export package.
 - Additional Salesforce object contracts such as Contact, Lead, and custom objects.

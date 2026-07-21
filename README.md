@@ -1,6 +1,6 @@
 # Salesforce ETL Engineer
 
-Salesforce ETL Engineer is a local FastAPI and Polars workbench for preparing safe Salesforce load packages from CSV data. It extracts and profiles source files, turns a plain-English Salesforce outcome into a typed ETL plan, generates an approved Polars operation graph, executes it in a controlled worker, validates the result, and produces a Salesforce Account upsert load plan.
+Salesforce ETL Engineer is a local FastAPI and Polars workbench for preparing safe Salesforce load packages from CSV data. It extracts and profiles source files, uses GPT-5.6 Sol or an approved local fallback to turn a plain-English outcome into a typed ETL plan, generates an approved Polars operation graph, executes it in a controlled worker, validates the result, and produces a Salesforce Account upsert load plan.
 
 Direct Salesforce writes are not enabled in the current demo. The app prepares Salesforce-ready CSV output and a field mapping contract.
 
@@ -19,6 +19,19 @@ Open:
 - API docs: `http://127.0.0.1:8000/docs`
 - Health: `http://127.0.0.1:8000/health`
 
+The no-key path is ready immediately. To demonstrate live GPT-5.6 Sol planning, create `.env`
+from `.env.example`, set `OPENAI_API_KEY`, and use:
+
+```env
+OPENAI_MODEL=gpt-5.6-sol
+OPENAI_PLANNING_MODE=openai
+OPENAI_REASONING_EFFORT=medium
+```
+
+Restart Uvicorn after changing `.env`. `auto` uses GPT-5.6 when a key is present and visibly
+falls back to the approved local planner when it is not. The Plan tab identifies the actual
+planner and displays the OpenAI response ID for a live call.
+
 ## Demo Flow
 
 1. Click `Load Sample`.
@@ -35,7 +48,7 @@ Open:
 - Repository URL: `https://github.com/abeymat/DataWranglerEngineer`
 - Submission support files live in `submission/`.
 - The demo video should be under 3 minutes and show the app working end to end.
-- The narration should explicitly cover where Codex accelerated engineering work and where GPT-5.6 is configured for future OpenAI-backed planning/generation.
+- The narration should explicitly cover where Codex accelerated engineering work and show a GPT-5.6 Sol structured planning result.
 - Get the Codex session ID with `/feedback` from the Codex session where the core functionality was built, then paste that ID into the submission form.
 
 ## Main API Endpoints
@@ -61,7 +74,12 @@ mypy app tests
 
 Copy `.env.example` to `.env` for local overrides. Do not commit real Salesforce credentials, API keys, tokens, org IDs, or customer data.
 
-The default OpenAI model configuration is `gpt-5.6-sol`. Your OpenAI API organization must have GPT-5.6 access enabled before any future OpenAI-backed planning or generation path can use it successfully.
+The OpenAI path uses the official Python SDK and Responses API structured outputs with
+`gpt-5.6-sol`, explicit `medium` reasoning, low response verbosity, a 45-second timeout, and at
+most two SDK retries for transient errors. It sends the business instruction and schema-quality
+metadata only; filenames, preview rows, and sample values are excluded. Model output is validated
+with Pydantic and mapped onto the approved operation sequence before generation. See
+[`docs/OPENAI_INTEGRATION.md`](docs/OPENAI_INTEGRATION.md) for modes and limitations.
 
 ## Current Limitations
 
@@ -69,3 +87,4 @@ The default OpenAI model configuration is `gpt-5.6-sol`. Your OpenAI API organiz
 - Salesforce loading currently means validated CSV package preparation, not direct API writes.
 - Workflow persistence and repair orchestration are planned next phases.
 - The worker process is not a hardened OS sandbox.
+- GPT-5.6 access and API billing depend on the operator's OpenAI project; automated tests use mocks.

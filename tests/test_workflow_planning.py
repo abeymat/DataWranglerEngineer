@@ -54,5 +54,7 @@ def test_plan_endpoint_accepts_profile_payload() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["success"] is True
+    assert body["planning"]["provider"] == "local"
+    assert body["planning"]["effective_model"] == "approved-local-planner"
     assert body["spec"]["load_target"]["object_api_name"] == "Account"
     assert body["spec"]["output_columns"][0] == "customer_id"

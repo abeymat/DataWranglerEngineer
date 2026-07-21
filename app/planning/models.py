@@ -1,6 +1,7 @@
 from enum import StrEnum
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.ingestion.models import DatasetProfile
 from app.salesforce.models import SalesforceLoadTarget
@@ -17,7 +18,11 @@ class TransformationAction(StrEnum):
     SORT = "sort"
 
 
-class TransformationStep(BaseModel):
+class StrictPlanningModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class TransformationStep(StrictPlanningModel):
     step_id: str
     action: TransformationAction
     business_description: str
@@ -26,14 +31,14 @@ class TransformationStep(BaseModel):
     parameters: dict[str, str | list[str]] = Field(default_factory=dict)
 
 
-class ValidationRule(BaseModel):
+class ValidationRule(StrictPlanningModel):
     rule_id: str
     description: str
     severity: str = Field(pattern="^(error|warning|info)$")
     columns: list[str] = Field(default_factory=list)
 
 
-class WorkflowSpec(BaseModel):
+class WorkflowSpec(StrictPlanningModel):
     workflow_name: str
     business_objective: str
     input_dataset: str
@@ -52,11 +57,31 @@ class WorkflowSpec(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
-class WorkflowPlanRequest(BaseModel):
+class WorkflowPlanRequest(StrictPlanningModel):
     instruction: str
     dataset_profile: DatasetProfile
 
 
-class WorkflowPlanResponse(BaseModel):
+class ModelTokenUsage(StrictPlanningModel):
+    input_tokens: int = Field(ge=0)
+    output_tokens: int = Field(ge=0)
+    total_tokens: int = Field(ge=0)
+
+
+class PlanningMetadata(StrictPlanningModel):
+    provider: Literal["openai", "local"]
+    requested_model: str | None = None
+    effective_model: str
+    reasoning_effort: str | None = None
+    prompt_version: str
+    response_id: str | None = None
+    used_fallback: bool = False
+    fallback_category: str | None = None
+    duration_ms: int = Field(ge=0)
+    usage: ModelTokenUsage | None = None
+
+
+class WorkflowPlanResponse(StrictPlanningModel):
     success: bool = True
     spec: WorkflowSpec
+    planning: PlanningMetadata

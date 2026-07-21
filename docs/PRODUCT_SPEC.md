@@ -30,6 +30,8 @@ Create one row per customer. Combine all unique addresses into a readable addres
 - VLOOKUP-style two-CSV lookup preview for enriching load sources before transformation.
 - Standalone browser ETL workbench for upload, profiling, planning, generation, execution, validation, and load preparation.
 - Pydantic `WorkflowSpec` with extract source and Salesforce load target metadata.
+- GPT-5.6 Sol requirement interpretation through Responses API structured output, with visible
+  model provenance, response ID, reasoning setting, token usage metadata, and local fallback.
 - Approved operation graph that translates to Polars code instead of executing arbitrary generated Python.
 - Worker-process execution with timeout, sanitized errors, and no default source-data persistence.
 - Validation suite for output columns, identifiers, row counts, totals, duplicates, date handling, and Salesforce load readiness.
@@ -51,6 +53,8 @@ Create one row per customer. Combine all unique addresses into a readable addres
 ## Success Criteria
 
 - Main ETL demo runs locally without a real OpenAI key by default.
+- With an authorized API key, the Plan step uses `gpt-5.6-sol`; without one, the UI labels the
+  approved deterministic planner instead of implying an AI call occurred.
 - Salesforce load prep is explicit, validated, and not confused with direct org writes.
 - Tests, linting, and type checks pass or documented exceptions are explicit.
 - No committed secrets or real customer data.

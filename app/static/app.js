@@ -1,6 +1,7 @@
 const state = {
   profile: null,
   spec: null,
+  planning: null,
   generated: null,
   execution: null,
   datasetFile: null,
@@ -83,7 +84,13 @@ async function checkApiStatus() {
   try {
     const response = await fetch("/health");
     const body = await response.json();
-    $("api-status").textContent = body.status === "ok" ? "API Online" : "API Issue";
+    if (body.status !== "ok") {
+      $("api-status").textContent = "API Issue";
+    } else if (body.openai_configured && body.planning_mode !== "deterministic") {
+      $("api-status").textContent = "GPT-5.6 Sol Configured";
+    } else {
+      $("api-status").textContent = "Local Demo Ready";
+    }
   } catch {
     $("api-status").textContent = "API Offline";
   }
@@ -153,8 +160,15 @@ async function createPlan() {
     dataset_profile: state.profile,
   });
   state.spec = body.spec;
-  renderPlan(state.spec);
-  setStep("plan", "Transform plan created", true);
+  state.planning = body.planning;
+  renderPlan(state.spec, state.planning);
+  setStep(
+    "plan",
+    state.planning?.provider === "openai"
+      ? "GPT-5.6 Sol transform plan created"
+      : "Approved local transform plan created",
+    true,
+  );
   activateTab("plan");
 }
 
@@ -282,6 +296,7 @@ function ensureRequiredColumnsAvailable() {
 function resetWorkflowState() {
   state.profile = null;
   state.spec = null;
+  state.planning = null;
   state.generated = null;
   state.execution = null;
   hideExecutionError();
@@ -313,16 +328,31 @@ function renderProfile(profile) {
   renderWarnings("quality-warnings", profile.quality.warnings);
 }
 
-function renderPlan(spec) {
+function renderPlan(spec, planning) {
   const loadTarget = spec.load_target ?? {
     system: "salesforce",
     object_api_name: "Account",
     operation: "upsert",
   };
-  $("plan-summary").textContent = `${spec.transformation_steps.length} steps`;
+  const plannerLabel =
+    planning?.provider === "openai"
+      ? `${planning.effective_model} · ${planning.reasoning_effort} reasoning`
+      : "approved local planner";
+  $("plan-summary").textContent = `${spec.transformation_steps.length} steps · ${plannerLabel}`;
   $("plan-output").classList.remove("empty-state");
   $("plan-output").innerHTML = [
     detailItem("Extract Source", spec.extract_source ?? "csv_upload"),
+    detailItem("Planner", plannerLabel),
+    ...(planning?.response_id ? [detailItem("OpenAI Response", planning.response_id)] : []),
+    ...(planning?.usage
+      ? [
+          detailItem(
+            "Token Usage",
+            `${planning.usage.total_tokens} total · ${planning.usage.input_tokens} input · ` +
+              `${planning.usage.output_tokens} output`,
+          ),
+        ]
+      : []),
     detailItem(
       "Load Target",
       `${loadTarget.system} ${loadTarget.object_api_name} ${loadTarget.operation}`,

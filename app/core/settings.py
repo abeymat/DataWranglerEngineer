@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -7,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_env: str = "development"
     app_name: str = "Salesforce ETL Engineer"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
     cors_origins_raw: str = Field(
         default="http://localhost:8000,http://127.0.0.1:8000",
         alias="APP_CORS_ORIGINS",
@@ -15,6 +16,13 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 5 * 1024 * 1024
     openai_api_key: str | None = None
     openai_model: str = "gpt-5.6-sol"
+    openai_planning_mode: Literal["auto", "openai", "deterministic"] = "auto"
+    openai_reasoning_effort: Literal[
+        "none", "low", "medium", "high", "xhigh", "max"
+    ] = "medium"
+    openai_timeout_seconds: float = 45.0
+    openai_max_retries: int = 2
+    openai_max_output_tokens: int = 8_000
     workflow_db_path: str = "salesforce_etl_workflows.db"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", populate_by_name=True)
@@ -24,6 +32,34 @@ class Settings(BaseSettings):
     def validate_max_upload_bytes(cls, value: int) -> int:
         if value <= 0:
             raise ValueError("MAX_UPLOAD_BYTES must be positive")
+        return value
+
+    @field_validator("openai_api_key", mode="before")
+    @classmethod
+    def empty_openai_api_key_is_none(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
+
+    @field_validator("openai_timeout_seconds")
+    @classmethod
+    def validate_openai_timeout(cls, value: float) -> float:
+        if value <= 0:
+            raise ValueError("OPENAI_TIMEOUT_SECONDS must be positive")
+        return value
+
+    @field_validator("openai_max_retries")
+    @classmethod
+    def validate_openai_max_retries(cls, value: int) -> int:
+        if not 0 <= value <= 5:
+            raise ValueError("OPENAI_MAX_RETRIES must be between 0 and 5")
+        return value
+
+    @field_validator("openai_max_output_tokens")
+    @classmethod
+    def validate_openai_max_output_tokens(cls, value: int) -> int:
+        if value <= 0:
+            raise ValueError("OPENAI_MAX_OUTPUT_TOKENS must be positive")
         return value
 
     @property

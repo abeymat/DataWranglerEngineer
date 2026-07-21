@@ -25,8 +25,13 @@ Use this checklist against the OpenAI Build Week submission page.
 ## Codex And GPT-5.6 Evidence
 
 - Demo narration explains how Codex accelerated repository audit, architecture, implementation, debugging, tests, and docs.
-- Demo narration explains that GPT-5.6 is configured as `gpt-5.6-sol` for the OpenAI-backed path.
-- Submission description is transparent that the current reliable demo path uses deterministic local planning/generation while GPT-5.6 integration is configured for the next OpenAI-backed workflow phase.
+- Recorded demo runs with `OPENAI_PLANNING_MODE=openai` and visibly shows `gpt-5.6-sol` plus an
+  OpenAI response ID.
+- Demo narration explains that GPT-5.6 performs structured schema-only planning while the approved
+  operation graph and worker perform transformation.
+- Submission description is transparent about the no-key local fallback and does not present it as
+  a model call.
+- Mocked tests verify the GPT-5.6 request contract without requiring a real API key.
 - `submission/CODEX_AND_GPT56_USAGE.md` is up to date.
 
 ## Demo Video Must Show
@@ -35,6 +40,7 @@ Use this checklist against the OpenAI Build Week submission page.
 - Load sample CSV.
 - Extract/profile source data.
 - Show structured ETL plan.
+- Show GPT-5.6 Sol model provenance and response ID.
 - Show generated operation graph or Polars code.
 - Run ETL successfully.
 - Show Salesforce load prep, field mappings, validation, and output preview.
